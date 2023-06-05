@@ -16,12 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from api.views import PersonView, TestView
+from api.views import PersonView, TestViewset
+from rest_framework import routers
+
+router1 = routers.SimpleRouter()
+router1.register('Test1', TestViewset, basename='test')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
     path('api/Person/', PersonView.as_view()),
-    path('api/Test/', TestView.as_view()),
+    path('api/', include(router1.urls)), # path http://127.0.0.1:8000/api/Test1/
 ]
-# xx
