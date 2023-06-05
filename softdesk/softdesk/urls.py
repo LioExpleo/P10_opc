@@ -24,3 +24,4 @@ urlpatterns = [
     path('api/Person/', PersonView.as_view()),
     path('api/Test/', TestView.as_view()),
 ]
+# xx
