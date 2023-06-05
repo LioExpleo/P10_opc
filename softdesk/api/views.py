@@ -20,9 +20,29 @@ class TestView(APIView):
         serializer = TestSerializer(queryset, many=True)  # many permet de sérialiser plusieurs catégories si besoin
         return Response(serializer.data)
 '''
+
+'''
 class TestViewset(ReadOnlyModelViewSet):
     serializer_class = TestSerializer
     def get_queryset(self):
         queryset = ModelTest.objects.all()
         serializer = TestSerializer(queryset, many=True)  # many permet de sérialiser plusieurs catégories si besoin
-        return ModelTest.objects.all()
+        return ModelTest.objects.filter(active=True)
+'''
+
+class TestViewset(ReadOnlyModelViewSet):
+    serializer_class = TestSerializer
+    def get_queryset(self):
+        queryset = ModelTest.objects.filter(active=True)
+        test_id = self.request.GET.get('test_id') # verifie si test_id est dans l'url
+        if test_id is not None: # si test_id est dans l'url, filtrer avec test_id de l'url = id
+            queryset = queryset.filter(id=test_id)
+        else:
+            pass
+        return queryset
+
+
+'''
+        serializer = TestSerializer(queryset, many=True)  # many permet de sérialiser plusieurs catégories si besoin
+        return ModelTest.objects.filter(active=True)
+'''

@@ -13,3 +13,5 @@ class TestSerializer(ModelSerializer):
         model = ModelTest
         # fields = ['modele1_name', 'modele1_last_name']
         fields = "__all__"  # utiliser tous les champs du modèle
+        #fields = ['id', ' Test_FirstName', 'Test_LastName']
+
