@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from api.views import PersonView, TestViewset
+from user.views import GetRegisterView, PostRegisterView
 from rest_framework import routers
 
 router1 = routers.SimpleRouter()
@@ -27,4 +28,7 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('api/Person/', PersonView.as_view()),
     path('api/', include(router1.urls)), # path http://127.0.0.1:8000/api/Test1/
+    path('user/get/', GetRegisterView.as_view()),
+    path('user/post/', PostRegisterView.as_view()),
+
 ]
