@@ -1,3 +1,14 @@
 from django.db import models
 
 # Create your models here.
+from django.contrib.auth.models import User
+
+
+class UserTest(models.Model):
+
+    Test_FirstName = models.CharField(max_length=30)
+    Test_LastName = models.CharField(max_length=30)
+    active = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name

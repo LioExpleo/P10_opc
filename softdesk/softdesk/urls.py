@@ -27,8 +27,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
     path('api/Person/', PersonView.as_view()),
+
+
     path('api/', include(router1.urls)), # path http://127.0.0.1:8000/api/Test1/
     path('user/get/', GetRegisterView.as_view()),
     path('user/post/', PostRegisterView.as_view()),
+    path('signup/', PostRegisterView.as_view()),
 
 ]

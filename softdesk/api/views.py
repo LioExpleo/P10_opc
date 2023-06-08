@@ -13,6 +13,14 @@ class PersonView(APIView):
         queryset = Person.objects.all()
         serializer = PersonSerializer(queryset, many=True)  # many permet de sérialiser plusieurs catégories si besoin
         return Response(serializer.data)
+
+    def post(self, request):
+        serializer = PersonSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response ({'Error': 'data invalides'})
 '''
 class TestView(APIView):
     def get(self, *args, **kwargs):

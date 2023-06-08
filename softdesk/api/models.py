@@ -11,4 +11,4 @@ class ModelTest(models.Model):
     active = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.name
+        return (self.Test_LastName, self.Test_LastName, self.pk, self.active)
