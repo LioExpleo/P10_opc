@@ -4,7 +4,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView # pour APIView
 from rest_framework.response import Response # pour APIView
 from django.contrib.auth.models import User
-from .serializers import RegisterSerializer, LoginSerializer, SignupSerializer
+from .serializers import RegisterSerializer, LoginSerializer
 from rest_framework.decorators import api_view
 from rest_framework import status
 #@api_view(['POST'])
@@ -89,12 +89,3 @@ class LoginView2(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 '''
 
-from .serializers import RegisterSerializer2
-
-class RegisterView2(APIView):
-    #@api_view(['POST'])
-    def post(self, request):
-        serializer = RegisterSerializer2(request.data)
-        serializer.validate(request.data)
-        serializer.create(request.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
