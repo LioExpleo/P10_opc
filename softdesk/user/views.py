@@ -4,11 +4,12 @@ from django.shortcuts import render
 from rest_framework.views import APIView # pour APIView
 from rest_framework.response import Response # pour APIView
 from django.contrib.auth.models import User
-from .serializers import RegisterSerializer, LoginSerializer
+from .serializers import RegisterSerializer, LoginSerializer, SignupSerializer
 from rest_framework.decorators import api_view
 from rest_framework import status
 #@api_view(['POST'])
 from django.views.decorators.http import require_http_methods
+
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
@@ -20,12 +21,13 @@ class GetRegisterView(APIView):
         serializer = RegisterSerializer(queryset, many=True)  # many permet de sérialiser plusieurs catégories si besoin
         return Response(serializer.data)
 
+
 # @api_view(['POST'])
 class RegisterView(APIView):
     # @require_http_methods(["GET"])
+
     def get(self, *args, **kwargs):
         queryset = User.objects.all()
-
         serializer = RegisterSerializer(queryset, many=True)  # many permet de sérialiser plusieurs catégories si besoin
         return Response(serializer.data)
 
@@ -37,7 +39,7 @@ class RegisterView(APIView):
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            return Response("Pas de création de cet utilisateur", serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 from django.contrib.auth import authenticate, login
@@ -86,3 +88,13 @@ class LoginView2(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 '''
+
+from .serializers import RegisterSerializer2
+
+class RegisterView2(APIView):
+    #@api_view(['POST'])
+    def post(self, request):
+        serializer = RegisterSerializer2(request.data)
+        serializer.validate(request.data)
+        serializer.create(request.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
