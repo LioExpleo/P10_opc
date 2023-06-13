@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from api.views import PersonView, TestViewset, ProjectsView
-from user.views import GetRegisterView, RegisterView, LoginView, LoginView2, LoginView0
+from user.views import RegisterView, LoginView
 
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -30,7 +30,8 @@ router2 = routers.SimpleRouter()
 router2.register('Test1', TestViewset, basename='test')
 '''
 
-
+#router3 = routers.SimpleRouter()
+#router3.register('Projects', ProjectsViewset, basename='base_name_projects')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -45,5 +46,5 @@ urlpatterns = [
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('login/refresh/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('projects/', ProjectsView.as_view()),
-
+    #path('/', include(router3)),
 ]

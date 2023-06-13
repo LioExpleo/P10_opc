@@ -29,7 +29,7 @@ class Projects(models.Model):
                                        default=None,
                                        on_delete=models.CASCADE,
                                        blank=True,
-                                       null=True,
+                                       null=False,
                                        )
     '''
     contributors = models.ManyToManyField(to=User,

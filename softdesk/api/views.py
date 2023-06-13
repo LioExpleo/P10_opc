@@ -43,7 +43,6 @@ class TestViewset(ReadOnlyModelViewSet):
         return ModelTest.objects.filter(active=True)
 '''
 
-
 class ProjectsView(APIView):
     auth_user_id = User.pk  # mettre l'utilisateur connecté du projet
     def get(self, *args, **kwargs):
