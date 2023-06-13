@@ -82,6 +82,7 @@ class LoginView2(APIView):
         return Response(content)
 
 
+
 '''
         if serializer.is_valid():
             return Response(serializer.data, status=status.HTTP_201_CREATED)
