@@ -31,19 +31,18 @@ class Projects(models.Model):
                                        blank=True,
                                        null=False,
                                        )
-    '''
+
+    # Plusieurs contributeur peuvent être associé à plusieurs projets
     contributors = models.ManyToManyField(to=User,
                                           through='Contributor',
                                           blank=True,
                                           related_name='contributors')
-    '''
+
 class Contributor(models.Model):
     user_id = models.ForeignKey(to=User, on_delete=models.CASCADE, blank=True)
     project_id = models.ForeignKey(to=Projects, on_delete=models.CASCADE, blank=True)
     permission = models.CharField(max_length=100, choices=PERMISSION_CHOICES)
     role = models.CharField(max_length=100)
-
-
 
 class Issue(models.Model):
     title = models.CharField(max_length=200)

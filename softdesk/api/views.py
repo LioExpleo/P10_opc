@@ -36,10 +36,6 @@ class TestViewset(ReadOnlyModelViewSet):
         else:
             pass
         return queryset
-'''
-        serializer = TestSerializer(queryset, many=True)  # many permet de sérialiser plusieurs catégories si besoin
-        return ModelTest.objects.filter(active=True)
-'''
 
 class ProjectsViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
     # auth_user_id = User.pk  # mettre l'utilisateur connecté du projet
@@ -63,8 +59,6 @@ class ProjectsViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
         #else: # si pas d'id
         return queryset
 
-
-
     def post(self, request):
         serializer = ProjectSerializer(data=request.data)
 
@@ -74,17 +68,27 @@ class ProjectsViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, pk):
-        project_id = self.request.GET.get('project_id')
+    #def put(self, request, pk): #mettre *args, **kwargs au lieu de pk évite le plantage si pk absent.
+    def put(self, request, *args, **kwargs):
+        pk = self.kwargs.get('pk')
+        try :
+            projet = Projects.objects.get(pk=pk)
+        except:
+            projet = "pas de projet"
+        #project_id = self.request.GET.get('project_id')
         serializer = ProjectSerializer(data=request.data)
         queryset = Projects.objects.all()  # recupérer tous les projets
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        # else:
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk):
+        if projet != "pas de projet":
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # else:
+        else:
+            return Response("pas de projet sélectionné existant ***, http://127.0.0.1:8000/projects/***")
+
+    def delete(self, request, *args, **kwargs):
+        pk = self.kwargs.get('pk')
         try :
             projet = Projects.objects.get(pk=pk)
         except:
@@ -96,7 +100,7 @@ class ProjectsViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
             projet.delete()
             return Response("projet supprimé avec succès", status=status.HTTP_204_NO_CONTENT)
         else:
-            return Response("projet innexistant")
+            return Response("pas de projet sélectionné existant ***, http://127.0.0.1:8000/projects/***")
 
 class ProjectsIdViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
     # auth_user_id = User.pk  # mettre l'utilisateur connecté du projet
@@ -137,7 +141,6 @@ class ProjectsIdViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
         #if serializer.is_valid(raise_exception=True):
 
         if project_id is not None:
-
             queryset = queryset.filter(project_id=project_id)
             project_id.delete(project_id)
             #return Response(serializer.data, status=status.HTTP_201_CREATED)  # return Response(serializer.data)
