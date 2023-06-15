@@ -19,7 +19,7 @@ class TestSerializer(ModelSerializer):
 class ProjectSerializer(ModelSerializer):
     title = serializers.CharField(required=True, validators=[UniqueValidator(queryset=Projects.objects.all())])
     description = serializers.CharField(required=True)
-    type = serializers.CharField(required=True)
+    type = serializers.ChoiceField(TYPE_CHOICES)
 
     class Meta:
         model = Projects
