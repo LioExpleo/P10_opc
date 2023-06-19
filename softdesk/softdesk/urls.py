@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from api.views import PersonView, TestViewset, ProjectsViewset # , ProjectsIdViewset #, ProjectsView,
+from api.views import PersonView, TestViewset, ProjectsViewset, ContributorsViewset # , ProjectsIdViewset #, ProjectsView,
 from user.views import RegisterView, LoginView
 
 from rest_framework import routers
@@ -36,6 +36,9 @@ router3.register('', ProjectsViewset, basename='projects')
 router4 = routers.SimpleRouter()
 #router4.register('projects', ProjectsIdViewset, basename='projects_id')
 
+router5 = routers.SimpleRouter()
+router5.register('', ContributorsViewset, basename='contributor_projects')
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
@@ -50,5 +53,8 @@ urlpatterns = [
     path('login/refresh/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     # path('PostProjects/', ProjectsView.as_view()),
     path('projects/', include(router3.urls)),
-    #path('id/', include(router4.urls)),
+    #path('projects/<int:pk>/', include(router3.urls)),
+    path('projects/<int:pk>/users/', include(router5.urls)),
+    #path('projects/', include(router5.urls)),
+
 ]

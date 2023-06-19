@@ -4,8 +4,8 @@ from django.shortcuts import render
 from rest_framework.views import APIView  # pour APIView
 from rest_framework.response import Response  # pour APIView
 
-from .models import Person, ModelTest, Projects, User
-from .serializers import PersonSerializer, TestSerializer, ProjectSerializer
+from .models import Person, ModelTest, Projects, User, Contributor
+from .serializers import PersonSerializer, TestSerializer, ProjectSerializer, ContributorSerializer
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework import status, filters, request
 
@@ -85,7 +85,7 @@ class ProjectsViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
         # else:
         else:
-            return Response("pas de projet sélectionné existant ***, http://127.0.0.1:8000/projects/***")
+            return Response("pas de projet sélectionné existant ***, http://127.0.0.1:8000/projects/ (ID)")
 
     def delete(self, request, *args, **kwargs):
         pk = self.kwargs.get('pk')
@@ -102,6 +102,19 @@ class ProjectsViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
         else:
             return Response("pas de projet sélectionné existant ***, http://127.0.0.1:8000/projects/***")
 
+
+
+
+class ContributorsViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
+    serializer_class = ContributorSerializer
+    def get_queryset(self):                             #def get(self, *args, **kwargs):
+        queryset = Contributor.objects.all()
+        return queryset
+
+
+
+
+'''
 class ProjectsIdViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
     # auth_user_id = User.pk  # mettre l'utilisateur connecté du projet
     serializer_class = ProjectSerializer
@@ -148,4 +161,4 @@ class ProjectsIdViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
         else:
             pass
                 #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+'''
