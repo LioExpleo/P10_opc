@@ -4,8 +4,8 @@ from django.shortcuts import render
 from rest_framework.views import APIView  # pour APIView
 from rest_framework.response import Response  # pour APIView
 
-from .models import Person, ModelTest, Projects, User, Contributor, Issue
-from .serializers import PersonSerializer, TestSerializer, ProjectSerializer, ContributorSerializer, IssueSerializer
+from .models import Person, ModelTest, Projects, User, Contributor, Issue, Comment
+from .serializers import PersonSerializer, TestSerializer, ProjectSerializer, ContributorSerializer, IssueSerializer, CommentSerializer
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework import status, filters, request
 from django.shortcuts import get_object_or_404
@@ -195,3 +195,106 @@ class IssueView(APIView):  # class ProjectsView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class IssuePutView(APIView):  # class ProjectsView(APIView):
+    serializer_class = IssueSerializer
+
+    def get(self, request, *args, **kwargs):
+        pk_project = self.kwargs.get('pk')
+        pk_issue = self.kwargs.get('pk_issue')
+
+        #issue_projet = Issue.objects.filter(project_id=pk_project, id=pk_issue)
+        issue_projet = Issue.objects.filter(project_id=pk_project, id=pk_issue)
+        # contributors = Contributor.objects.filter( user_id=pk2)
+        serializer = IssueSerializer(issue_projet, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, *args, **kwargs):
+        pk = self.kwargs.get('pk')
+        pk_issue = self.kwargs.get('pk_issue')
+
+        try:
+            projet = Projects.objects.get(pk=pk)
+        except:
+            projet = "pas de projet"
+            return Response(
+                "pas de projet sélectionné existant dans le navigateur pour update***, http://127.0.0.1:8000/projects/ "
+                "pour visualiser les projets existants")
+        serializer = IssueSerializer(data=request.data)
+        #queryset = Projects.objects.all()  # recupérer tous les projets
+
+        if projet != "pas de projet":
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # else:
+        else:
+            return Response(
+                "pas de projet sélectionné existant dans le navigateur pour update***, http://127.0.0.1:8000/projects/ "
+                "pour visualiser les projets existants")
+
+    def delete(self, request, *args, **kwargs):
+        pk_project = self.kwargs.get('pk')
+        pk_issue = self.kwargs.get('pk_issue')
+
+        issue_projet = Issue.objects.filter(project_id=pk_project, id=pk_issue)
+        serializer = IssueSerializer(issue_projet, many=True)
+
+        issue_projet.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)  # requete réussie, mais pas besoin de quitter la page
+'''
+class CommentView(APIView):  # class ProjectsView(APIView):
+    serializer_class = CommentSerializer
+
+    def get(self, request, *args, **kwargs):
+        pk_project = self.kwargs.get('pk')
+        # pk_comment = self.kwargs.get('pk_comment')
+
+        comment_projet = Comment.objects.filter(project_id=pk_project)
+        # issue_projet = Issue.objects.filter(project_id=pk_project, user_id=pk_issue)
+
+        serializer = CommentSerializer(comment_projet, many=True)
+        return Response(serializer.data,
+                        status=status.HTTP_200_OK)  # requete réussie, mais pas besoin de quitter la page
+'''
+'''
+        try :
+            projet = Projects.objects.get(pk=pk)
+        except:
+            projet = "pas de projet"
+        #project_id = self.request.GET.get('project_id')
+        serializer = ProjectSerializer(data=request.data)
+        queryset = Projects.objects.all()  # recupérer tous les projets
+
+        if projet != "pas de projet":
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # else:
+        else:
+            return Response("pas de projet sélectionné existant dans le navigateur pour update***, http://127.0.0.1:8000/projects/ (ID)")
+'''
+
+'''
+class IssueDelView(APIView):  # class ProjectsView(APIView):
+    serializer_class = ContributorSerializer
+    def get(self, request, *args, **kwargs):
+        pk_project = self.kwargs.get('pk')
+        pk_contrib = self.kwargs.get('pk_contrib')
+
+        contributor_projet = Contributor.objects.filter(project_id=pk_project, user_id=pk_contrib)
+        #contributors = Contributor.objects.filter( user_id=pk2)
+        serializer = ContributorSerializer(contributor_projet, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def delete(self, request, *args, **kwargs):
+        pk_project = self.kwargs.get('pk')
+        pk_contrib = self.kwargs.get('pk_contrib')
+
+        contributor_projet = Contributor.objects.filter(project_id=pk_project, user_id=pk_contrib)
+        # contributors = Contributor.objects.filter( user_id=pk2)
+        serializer = ContributorSerializer(contributor_projet, many=True)
+        contributor_projet.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT) #requete réussie, mais pas besoin de quitter la page
+'''
