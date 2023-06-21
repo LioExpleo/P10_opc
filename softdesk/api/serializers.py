@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from .models import Person, ModelTest, Projects, User, TYPE_CHOICES, Contributor
+from .models import Person, ModelTest, Projects, User, TYPE_CHOICES, Contributor, Issue
 from rest_framework import serializers, request
 from rest_framework.validators import UniqueValidator
 
@@ -28,4 +28,9 @@ class ProjectSerializer(ModelSerializer):
 class ContributorSerializer(ModelSerializer):
     class Meta:
         model = Contributor
+        fields = "__all__"
+
+class IssueSerializer(ModelSerializer):
+    class Meta:
+        model = Issue
         fields = "__all__"

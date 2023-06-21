@@ -4,10 +4,11 @@ from django.shortcuts import render
 from rest_framework.views import APIView  # pour APIView
 from rest_framework.response import Response  # pour APIView
 
-from .models import Person, ModelTest, Projects, User, Contributor
-from .serializers import PersonSerializer, TestSerializer, ProjectSerializer, ContributorSerializer
+from .models import Person, ModelTest, Projects, User, Contributor, Issue
+from .serializers import PersonSerializer, TestSerializer, ProjectSerializer, ContributorSerializer, IssueSerializer
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework import status, filters, request
+from django.shortcuts import get_object_or_404
 
 class PersonView(APIView):
     def get(self, *args, **kwargs):
@@ -59,14 +60,31 @@ class ProjectsViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
         #else: # si pas d'id
         return queryset
 
-    def post(self, request):
-        serializer = ProjectSerializer(data=request.data)
+    def post(self, request, *args, **kwargs):
 
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        pk = self.kwargs.get('pk')
+        try :
+            projet = Projects.objects.get(pk=pk)
+        except:
+            projet = "pas de projet"
+
+        if projet == "pas de projet": # si pas de projet sélectionné, post possible, voir si utile
+            serializer = ProjectSerializer(data=request.data)
+
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else: # si un projet sélectionné, post possible, voir si utile
+            serializer = ProjectSerializer(data=request.data)
+
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            #return Response("Ne pas sélectionner de projet pour en créer un nouveau, http://127.0.0.1:8000/projects/ (ID)")
 
     #def put(self, request, pk): #mettre *args, **kwargs au lieu de pk évite le plantage si pk absent.
     def put(self, request, *args, **kwargs):
@@ -85,7 +103,7 @@ class ProjectsViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
         # else:
         else:
-            return Response("pas de projet sélectionné existant ***, http://127.0.0.1:8000/projects/ (ID)")
+            return Response("pas de projet sélectionné existant dans le navigateur pour update***, http://127.0.0.1:8000/projects/ (ID)")
 
     def delete(self, request, *args, **kwargs):
         pk = self.kwargs.get('pk')
@@ -102,63 +120,78 @@ class ProjectsViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
         else:
             return Response("pas de projet sélectionné existant ***, http://127.0.0.1:8000/projects/***")
 
-
-
-
-class ContributorsViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
+class ContributorsView(APIView): # class ProjectsView(APIView):
     serializer_class = ContributorSerializer
-    def get_queryset(self):                             #def get(self, *args, **kwargs):
-        queryset = Contributor.objects.all()
-        return queryset
+
+    def get(self, request, *args, **kwargs):
+        pk = self.kwargs.get('pk')
+        try:
+            projet = Projects.objects.get(pk=pk)
+        except:
+            projet = "pas de projet"
+
+        contributors = Contributor.objects.filter(project_id=pk)
+        serializer = ContributorSerializer(contributors, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+    def post(self, request, *args, **kwargs):
 
+        serializer = ContributorSerializer(data=self.request.data)
+        pk = self.kwargs.get('pk')
+        try:
+            proj = Contributor.objects.get(pk=pk)
+        except:
+            proj = "pas de projet"
 
-'''
-class ProjectsIdViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
-    # auth_user_id = User.pk  # mettre l'utilisateur connecté du projet
-    serializer_class = ProjectSerializer
-    def get_queryset(self):                             #def get(self, *args, **kwargs):
-        # queryset = Projects.objects.all()
-        #serializer = ProjectSerializer(queryset, many=True)  # many permet de sérialiser plusieurs catégories si besoin
-        project_id = self.request.GET.get('project_id')
-        queryset = Projects.objects.all() # recupérer tous les projets
-        # si id is not None, on filtre avec l'id correspondant au projet et on renvoie le résultat
-        if project_id is not None:
-            queryset = queryset.filter(project_id=project_id)
-            return queryset    # return Response(serializer.data)
-        # sinon, on renvoie tout les objets
-        else:
-            return queryset
-
-    def put(self, request, pk):
-        project_id = self.request.GET.get('project_id')
-        serializer = ProjectSerializer(data=request.data)
-        queryset = Projects.objects.all()  # recupérer tous les projets
-        #if project_id is not None:
-        if serializer.is_valid(raise_exception=True):
+        if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk):
-        project_id = self.request.GET.get('project_id')
-        serializer = ProjectSerializer(data=request.data)
-        #project = self.get_object(pk)
-        #self.check_object_permissions(request, obj=project)
-        #project.delete()
-        #return Response(status=status.HTTP_204_NO_CONTENT)
-        queryset = Projects.objects.all()
+class ContributorsDelView(APIView):  # class ProjectsView(APIView):
+    serializer_class = ContributorSerializer
+    def get(self, request, *args, **kwargs):
+        pk_project = self.kwargs.get('pk')
+        pk_contrib = self.kwargs.get('pk_contrib')
 
-        #if serializer.is_valid(raise_exception=True):
+        contributor_projet = Contributor.objects.filter(project_id=pk_project, user_id=pk_contrib)
+        #contributors = Contributor.objects.filter( user_id=pk2)
+        serializer = ContributorSerializer(contributor_projet, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-        if project_id is not None:
-            queryset = queryset.filter(project_id=project_id)
-            project_id.delete(project_id)
-            #return Response(serializer.data, status=status.HTTP_201_CREATED)  # return Response(serializer.data)
-        # sinon, on renvoie tout les objets
-        else:
-            pass
-                #return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-'''
+    def delete(self, request, *args, **kwargs):
+        pk_project = self.kwargs.get('pk')
+        pk_contrib = self.kwargs.get('pk_contrib')
+
+        contributor_projet = Contributor.objects.filter(project_id=pk_project, user_id=pk_contrib)
+        # contributors = Contributor.objects.filter( user_id=pk2)
+        serializer = ContributorSerializer(contributor_projet, many=True)
+        contributor_projet.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT) #requete réussie, mais pas besoin de quitter la page
+
+class IssueView(APIView):  # class ProjectsView(APIView):
+    serializer_class = IssueSerializer
+    def get(self, request, *args, **kwargs):
+        pk_project = self.kwargs.get('pk')
+        #pk_issue = self.kwargs.get('pk_issue')
+
+        issue_projet = Issue.objects.filter(project_id=pk_project)
+        # issue_projet = Issue.objects.filter(project_id=pk_project, user_id=pk_issue)
+
+        serializer = IssueSerializer(issue_projet, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK) #requete réussie, mais pas besoin de quitter la page
+
+    def post(self, request, *args, **kwargs):
+
+        serializer = IssueSerializer(data=self.request.data)
+        pk = self.kwargs.get('pk')
+        try:
+            proj = Contributor.objects.get(pk=pk)
+        except:
+            proj = "pas de projet"
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

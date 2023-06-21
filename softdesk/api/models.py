@@ -51,8 +51,7 @@ class Issue(models.Model):
     priority = models.CharField(max_length=50, choices=PRIORITY_CHOICES)
     project_id = models.ForeignKey(to=Projects, on_delete=models.CASCADE, related_name='issues')
     status = models.CharField(max_length=150, choices=STATUS_CHOICES)
-    author_user_id = models.ForeignKey(to=User,
-                                       on_delete=models.CASCADE,
+    author_user_id = models.ForeignKey(to=User, on_delete=models.CASCADE,
                                        related_name='author_user_id',
                                        blank=True)
     assignee_user_id = models.ForeignKey(to=User,

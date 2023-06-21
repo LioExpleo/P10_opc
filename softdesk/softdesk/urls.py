@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from api.views import PersonView, TestViewset, ProjectsViewset, ContributorsViewset # , ProjectsIdViewset #, ProjectsView,
+from api.views import PersonView, TestViewset, ProjectsViewset, ContributorsView, ContributorsDelView, IssueView # , ProjectsIdViewset #, ProjectsView,
 from user.views import RegisterView, LoginView
 
 from rest_framework import routers
@@ -37,7 +37,7 @@ router4 = routers.SimpleRouter()
 #router4.register('projects', ProjectsIdViewset, basename='projects_id')
 
 router5 = routers.SimpleRouter()
-router5.register('', ContributorsViewset, basename='contributor_projects')
+router5.register('', ContributorsView, basename='contributor_projects')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -54,7 +54,10 @@ urlpatterns = [
     # path('PostProjects/', ProjectsView.as_view()),
     path('projects/', include(router3.urls)),
     #path('projects/<int:pk>/', include(router3.urls)),
-    path('projects/<int:pk>/users/', include(router5.urls)),
+    path('projects/<int:pk>/users/', ContributorsView.as_view()),
+    path('projects/<int:pk>/users/<int:pk_contrib>', ContributorsDelView.as_view()),
+    path('projects/<int:pk>/issues/', IssueView.as_view()),
+    # path('projects/<int:pk>/issues/<int:pk_issue>', ContributorsDelView.as_view()),
     #path('projects/', include(router5.urls)),
 
 ]
