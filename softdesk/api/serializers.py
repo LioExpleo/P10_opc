@@ -37,5 +37,5 @@ class IssueSerializer(ModelSerializer):
 
 class CommentSerializer(ModelSerializer):
     class Meta:
-        model = Issue
+        model = Comment
         fields = "__all__"
