@@ -258,19 +258,18 @@ class CommentView(APIView):  # class ProjectsView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
+        serializer = CommentSerializer(data=self.request.data)
         pk_issue = self.kwargs.get('pk_issue')  # recup id issue
-        filtre_comments = Comment.objects.filter(issue_id=pk_issue)  # recup comment ayant id issue dans le navigateur
-        serializer = CommentSerializer(filtre_comments, many=True)  # serializer comment ayant id issue
+        #filtre_comments = Comment.objects.filter(issue_id=pk_issue)  # recup comment ayant id issue dans le navigateur
+        #serializer = CommentSerializer(filtre_comments, many=True)  # serializer comment ayant id issue
 
-        pk_issue = self.kwargs.get('pk_issue')
         try:
             comment = Comment.objects.get(pk_issue=pk_issue)
         except:
             comment = "pas de projet"
 
-
-
-        if serializer.is_valid:
+        if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
