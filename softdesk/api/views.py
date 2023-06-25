@@ -244,8 +244,6 @@ class IssuePutView(APIView):  # class ProjectsView(APIView):
         issue_projet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)  # requete réussie, mais pas besoin de quitter la page
 
-
-
 class CommentView(APIView):  # class ProjectsView(APIView):
     serializer_class = CommentSerializer
 
@@ -266,10 +264,60 @@ class CommentView(APIView):  # class ProjectsView(APIView):
         try:
             comment = Comment.objects.get(pk_issue=pk_issue)
         except:
-            comment = "pas de projet"
+            comment = "pas de issue"
 
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class CommentDelPutView(APIView):  # class ProjectsView(APIView):
+    serializer_class = CommentSerializer
+
+    def get(self, request, *args, **kwargs):
+        pk_project = self.kwargs.get('pk')
+        pk_issue = self.kwargs.get('pk_issue')
+        pk_comment = self.kwargs.get('pk_comment')
+
+        #issue_projet = Issue.objects.filter(project_id=pk_project, id=pk_issue)
+        #comment_projet = Comment.objects.filter(project_id=pk_project, id=pk_issue, comment_id = pk_comment)
+        comment_projet = Comment.objects.filter(comment_id=pk_comment)
+        serializer = CommentSerializer(comment_projet, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, *args, **kwargs):
+        pk = self.kwargs.get('pk')
+        # pk_project = self.kwargs.get('pk')
+        pk_issue = self.kwargs.get('pk_issue')
+        pk_comment = self.kwargs.get('pk_comment')
+        try:
+            comment = Comment.objects.get(comment_id=pk_comment)
+        except:
+            comment = "pas de comment"
+            return Response(
+                "pas de comment sélectionné existant dans le navigateur pour update***, http://127.0.0.1:8000/projects/issues/{id}/comment/ "
+                "pour visualiser les comment")
+        serializer = CommentSerializer(data=request.data)
+        #queryset = Projects.objects.all()  # recupérer tous les projets
+
+        if comment != "pas de issue":
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # else:
+        #else:
+        #    return Response(
+        #        "pas de issue sélectionné existant dans le navigateur pour update comment ***, http://127.0.0.1:8000/projects/ "
+        #        "pour visualiser les projets existants")
+
+    def delete(self, request, *args, **kwargs):
+        pk_project = self.kwargs.get('pk')
+        pk_issue = self.kwargs.get('pk_issue')
+        pk_comment = self.kwargs.get('pk_comment')
+
+        comment_projet = Comment.objects.filter(comment_id=pk_comment)
+        serializer = IssueSerializer(comment_projet, many=True)
+
+        comment_projet.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)  # requete réussie, mais pas besoin de quitter la page

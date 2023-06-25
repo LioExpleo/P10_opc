@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from api.views import PersonView, TestViewset, ProjectsViewset, ContributorsView, ContributorsDelView, IssueView, IssuePutView, CommentView # , ProjectsIdViewset #, ProjectsView,
+from api.views import PersonView, TestViewset, ProjectsViewset, ContributorsView, ContributorsDelView, IssueView, IssuePutView, CommentView, CommentDelPutView # , ProjectsIdViewset #, ProjectsView,
 from user.views import RegisterView, LoginView
 
 from rest_framework import routers
@@ -59,6 +59,6 @@ urlpatterns = [
     path('projects/<int:pk>/issues/', IssueView.as_view()),
     path('projects/<int:pk>/issues/<int:pk_issue>', IssuePutView.as_view()),
     path('projects/<int:pk>/issues/<int:pk_issue>/comments/', CommentView.as_view()),
-
+    path('projects/<int:pk>/issues/<int:pk_issue>/comments/<int:pk_comment>/', CommentDelPutView.as_view()),
 
 ]
