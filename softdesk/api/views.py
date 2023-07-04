@@ -9,6 +9,8 @@ from .serializers import PersonSerializer, TestSerializer, ProjectSerializer, Co
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from rest_framework import status, filters, request
 from django.shortcuts import get_object_or_404
+from rest_framework.permissions import IsAuthenticated # l'authentification de l'utilisateur est géré par djangorest..import
+
 
 class PersonView(APIView):
     def get(self, *args, **kwargs):
@@ -31,6 +33,7 @@ class TestViewset(ReadOnlyModelViewSet):
 
     def get_queryset(self):
         queryset = ModelTest.objects.filter(active=True)
+        permission_classes = [IsAuthenticated]
         test_id = self.request.GET.get('test_id')  # verifie si test_id est dans l'url
         if test_id is not None:  # si test_id est dans l'url, filtrer avec test_id de l'url = id
             queryset = queryset.filter(id=test_id)
@@ -41,6 +44,7 @@ class TestViewset(ReadOnlyModelViewSet):
 class ProjectsViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
     # auth_user_id = User.pk  # mettre l'utilisateur connecté du projet
     serializer_class = ProjectSerializer
+    permission_classes = [IsAuthenticated]
 
 
     def get_queryset(self):                             #def get(self, *args, **kwargs):
@@ -49,6 +53,7 @@ class ProjectsViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
 
         project_id = self.request.GET.get('project_id')
         queryset = Projects.objects.all() # recupérer tous les projets
+
         # si id is not None, on filtre avec l'id correspondant au projet et on renvoie le résultat
 
         #if project_id is not None:
@@ -69,21 +74,33 @@ class ProjectsViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
             projet = "pas de projet"
 
         if projet == "pas de projet": # si pas de projet sélectionné, post possible, voir si utile
-            serializer = ProjectSerializer(data=request.data)
+            serializer = ProjectSerializer(data=self.request.data)
 
-            if serializer.is_valid(raise_exception=True):
+            if serializer.is_valid():
+                user_connect = request.user
+                # serializer.validated_data["title"] = "user_connect:" + str(user_connect) #author_user_id = l'id connecté
+                # serializer.validated_data["description"] = "user_connect:" + str(user_connect)
+                if request.user.is_authenticated: # inutile, car permission_classes = [IsAuthenticated]
+                    serializer.validated_data["author_user_id"] = request.user
+                else :
+                    pass
+                    #serializer.validated_data["author_user_id"] = User.objects.get_by_natural_key("user10")  # request.user
+                #serializer.validated_data["contributor"] = Contributor(user_id=request.user)
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else: # si un projet sélectionné, post possible, voir si utile
             serializer = ProjectSerializer(data=request.data)
-
+            '''
             if serializer.is_valid(raise_exception=True):
+                serializer.validated_data["author_user_id"] = request.user #author_user_id = l'id connecté
+                # serializer.validated_data["contributor"] = Contributor(user_id=request.user)
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            '''
             #return Response("Ne pas sélectionner de projet pour en créer un nouveau, http://127.0.0.1:8000/projects/ (ID)")
 
     #def put(self, request, pk): #mettre *args, **kwargs au lieu de pk évite le plantage si pk absent.

@@ -21,6 +21,7 @@ class ProjectSerializer(ModelSerializer):
     description = serializers.CharField(required=True)
     type = serializers.ChoiceField(TYPE_CHOICES)
 
+
     class Meta:
         model = Projects
         fields = "__all__"
