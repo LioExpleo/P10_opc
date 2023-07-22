@@ -13,19 +13,20 @@ from rest_framework.permissions import IsAuthenticated # l'authentification de l
 from .permissions import UserAuthentif, UserAuthCreatProject, UserAuthCreatIssue,  UserAuthCreatComment, \
     UserIsContribProjet, UserIsContribContrib
 
+'''
 class ProjectsViewsetGet(ReadOnlyModelViewSet): # class ProjectsView(APIView):
     # auth_user_id = User.pk  # mettre l'utilisateur connecté du projet
     serializer_class = ProjectSerializer
 
-    
     def get_permissions(self):
         if self.action == "get_queryset":
-            permission_classes = [UserIsContribProjet]
+            #permission_classes = [UserIsContribProjet]
+            permission_classes = [UserAuthentif]
         else:
             #permission_classes = [UserAuthentif]  # Autorisation venant des permissions
             permission_classes = []  # Autorisation venant des permissions
 
-    permission_classes = [UserAuthentif]  # Autorisation venant des permissions
+    #permission_classes = [UserAuthentif]  # Autorisation venant des permissions
     def get_queryset(self):                             #def get(self, *args, **kwargs):
         queryset = Projects.objects.all()
         #serializer = ProjectSerializer(queryset, many=True)  # many permet de sérialiser plusieurs catégories si besoin
@@ -42,24 +43,19 @@ class ProjectsViewsetGet(ReadOnlyModelViewSet): # class ProjectsView(APIView):
         # sinon, on renvoie tout les objets
         #else: # si pas d'id
         return queryset
-
+'''
 
 class ProjectsViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
     # auth_user_id = User.pk  # mettre l'utilisateur connecté du projet
+
+    permission_classes = [UserIsContribContrib]
+
     serializer_class = ProjectSerializer
+    #permission_classes = [UserIsContribProjet]
 
-    '''
-    def get_permissions(self):
-        if self.action == "get_queryset":
-            permission_classes = [UserIsContribProjet]
-        if self.action == "post":
-            permission_classes = [UserAuthentif]  # Autorisation venant des permissions
-    '''
-    #permission_classes = [UserAuthentif] # Autorisation venant des permissions
-    #permission_classes = [UserAuthCreatProject]
-    permission_classes = [UserIsContribProjet]
+    def get_queryset(self):
 
-    def get_queryset(self):                             #def get(self, *args, **kwargs):
+        #def get(self, *args, **kwargs):
         pk_project = self.kwargs.get('pk')
         queryset = Projects.objects.all()
         # Projects.objects.filter(project_id=pk)
@@ -78,7 +74,6 @@ class ProjectsViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
         return queryset
 
     def post(self, request, *args, **kwargs):
-
         pk = self.kwargs.get('pk')
         try :
             projet = Projects.objects.get(pk=pk)
@@ -148,6 +143,8 @@ class ProjectsViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
             return Response("pas de projet sélectionné existant ***, http://127.0.0.1:8000/projects/***")
 
 class ContributorsView(APIView): # class ProjectsView(APIView):
+
+
     serializer_class = ContributorSerializer
 
     def get(self, request, *args, **kwargs):
