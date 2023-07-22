@@ -4,6 +4,7 @@ class UserAuthentif(permissions.IsAuthenticated):
     def has_permission(self, request, view):
         if request.user.is_authenticated:
             return True
+        return False
 
 class UserAuthCreatProject(permissions.DjangoModelPermissions): # Le user authentifié est le créateur du projet
     def has_object_permission(self, request, view, obj):
@@ -38,6 +39,7 @@ class UserIsContribContrib(permissions.BasePermission): # Le user authentifié e
         # si authorisation connecté est autentifié post ok
         if request.user.is_authenticated:
             return True
+        return False
     def has_object_permission(self, request, view, obj):
         if obj.user_id == request.user: # si l'utilisateur connecté fait partie des contributeurs du modele contributeur
             # return True

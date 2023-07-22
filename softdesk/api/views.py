@@ -6,7 +6,7 @@ from rest_framework.response import Response  # pour APIView
 
 from .models import Person, ModelTest, Projects, User, Contributor, Issue, Comment
 from .serializers import PersonSerializer, TestSerializer, ProjectSerializer, ContributorSerializer, IssueSerializer, CommentSerializer
-from rest_framework.viewsets import ReadOnlyModelViewSet
+from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 from rest_framework import status, filters, request
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated # l'authentification de l'utilisateur est géré par djangorest..import
@@ -45,7 +45,7 @@ class ProjectsViewsetGet(ReadOnlyModelViewSet): # class ProjectsView(APIView):
         return queryset
 '''
 
-class ProjectsViewset(ReadOnlyModelViewSet): # class ProjectsView(APIView):
+class ProjectsViewset(ModelViewSet): # class ProjectsView(APIView):
     # auth_user_id = User.pk  # mettre l'utilisateur connecté du projet
 
     permission_classes = [UserIsContribContrib]
