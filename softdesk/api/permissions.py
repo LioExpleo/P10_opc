@@ -19,22 +19,17 @@ class UserIsContribProject(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         # print("You are here : IsAuthorOfProject.has_permission")
         print()
-        print("request.method : ", (request.method))
-        print("request-user : ", request.user)
-        print("objet_author_user_id : ", obj.author_user_id)
+        print("request_method : ", (request.method))
+        print("request_user : ", request.user)
+
+        print("DONNEES DE LA TABLE PROJET")
         print("objet_project_id : ", obj.project_id)
+        print("objet_title : ", obj.title)
+        print("objet_description : ", obj.description)
+        print("objet_type : ", obj.type)
+        print("objet_author_user_id : ", obj.author_user_id)
         print("objet_contributors : ", obj.contributors.all())
 
-
-        print("DESCRIPTION : ")
-        #user_id = ''
-
-        #contributor_instance = Projects.contributors.description
-        contributor_instance = "afficher le contributeur ici"
-        #contributor_instance = Contributor.objects.get(
-        #    user_id=user.id
-        #)
-        print (contributor_instance)
 
         if (
             #request.method == "POST"
