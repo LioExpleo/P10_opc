@@ -9,9 +9,9 @@ from .serializers import PersonSerializer, TestSerializer, ProjectSerializer, Co
 from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 from rest_framework import status, filters, request
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import IsAuthenticated # l'authentification de l'utilisateur est géré par djangorest..import
+from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions # l'authentification de l'utilisateur est géré par djangorest..import
 from .permissions import UserAuthentif, UserAuthCreatProject, UserAuthCreatIssue,  UserAuthCreatComment, \
-    UserIsContribProjet, UserIsContribContrib
+    UserIsContribProject
 
 '''
 class ProjectsViewsetGet(ReadOnlyModelViewSet): # class ProjectsView(APIView):
@@ -45,13 +45,63 @@ class ProjectsViewsetGet(ReadOnlyModelViewSet): # class ProjectsView(APIView):
         return queryset
 '''
 
+
+
+
+
 class ProjectsViewset(ModelViewSet): # class ProjectsView(APIView):
     # auth_user_id = User.pk  # mettre l'utilisateur connecté du projet
 
-    permission_classes = [UserIsContribContrib]
+    #permission_classes = [UserIsContribProject]
+    #serializer_class = ProjectSerializer
+
+
+    #permission_classes = [UserIsContribProjet]
+    '''
+    def get_permissions(self):
+        """Return the list of permissions that this view requires."""
+        if self.action == "post":
+            permission_classes = [UserAuthentif]
+            return [permission() for permission in permission_classes]
+        elif self.action == "get_queryset":
+            permission_classes = [UserIsContribProject]
+            return [permission() for permission in permission_classes]
 
     serializer_class = ProjectSerializer
-    #permission_classes = [UserIsContribProjet]
+    '''
+
+    def get_permissions(self):
+        pass
+
+        if self.get_queryset():
+            permission_classes = [UserIsContribProject]
+            return [permission() for permission in permission_classes]
+        if self.action =="post":
+            permission_classes = [UserIsContribProject]
+            return [permission() for permission in permission_classes]
+
+        '''
+        if self.post(self,request):
+            permission_classes = [UserAuthentif]
+            return [permission() for permission in permission_classes]
+
+        elif self.post():
+            permission_classes = [UserIsContribProject]
+            return [permission() for permission in permission_classes]
+        elif self.action in ('post'):
+            permission_classes = [UserAuthentif]
+            return [permission() for permission in permission_classes]
+        elif self.action in ('post'):
+            self.permission_classes = [UserAuthentif]
+            return [permission() for permission in permission_classes]
+        '''
+
+
+
+
+    serializer_class = ProjectSerializer
+
+
 
     def get_queryset(self):
 
@@ -62,7 +112,8 @@ class ProjectsViewset(ModelViewSet): # class ProjectsView(APIView):
         #serializer = ProjectSerializer(queryset, many=True)  # many permet de sérialiser plusieurs catégories si besoin
         project_id = self.request.GET.get('project_id')
         #queryset = Projects.objects.all() # recupérer tous les projets
-        queryset = Projects.objects.filter(author_user_id=self.request.user) # Affiche les projets où l'utilisateur est le créateur
+        #queryset = Projects.objects.filter(author_user_id=self.request.user) # Affiche les projets où l'utilisateur est le créateur
+        queryset = Projects.objects.filter(contributors=self.request.user)
         # si id is not None, on filtre avec l'id correspondant au projet et on renvoie le résultat
         #if project_id is not None:
         #    pass
