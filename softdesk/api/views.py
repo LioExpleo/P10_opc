@@ -7,80 +7,42 @@ from rest_framework.response import Response  # pour APIView
 from .models import Person, ModelTest, Projects, User, Contributor, Issue, Comment
 from .serializers import PersonSerializer, TestSerializer, ProjectSerializer, ContributorSerializer, IssueSerializer, CommentSerializer
 from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
-from rest_framework import status, filters, request
+from rest_framework import status, filters, request, viewsets
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, DjangoModelPermissions # l'authentification de l'utilisateur est géré par djangorest..import
-from .permissions import UserAuthentif, UserAuthCreatProject, UserAuthCreatIssue,  UserAuthCreatComment, \
-    UserIsContribProject
-
-'''
-class ProjectsViewsetGet(ReadOnlyModelViewSet): # class ProjectsView(APIView):
-    # auth_user_id = User.pk  # mettre l'utilisateur connecté du projet
-    serializer_class = ProjectSerializer
-
-    def get_permissions(self):
-        if self.action == "get_queryset":
-            #permission_classes = [UserIsContribProjet]
-            permission_classes = [UserAuthentif]
-        else:
-            #permission_classes = [UserAuthentif]  # Autorisation venant des permissions
-            permission_classes = []  # Autorisation venant des permissions
-
-    #permission_classes = [UserAuthentif]  # Autorisation venant des permissions
-    def get_queryset(self):                             #def get(self, *args, **kwargs):
-        queryset = Projects.objects.all()
-        #serializer = ProjectSerializer(queryset, many=True)  # many permet de sérialiser plusieurs catégories si besoin
-
-        project_id = self.request.GET.get('project_id')
-        queryset = Projects.objects.all() # recupérer tous les projets
-
-        # si id is not None, on filtre avec l'id correspondant au projet et on renvoie le résultat
-        #if project_id is not None:
-        #    pass
-            #queryset = Projects.objects.all()
-            #queryset = queryset.filter(project_id=project_id)
-            #return queryset    # return Response(serializer.data)
-        # sinon, on renvoie tout les objets
-        #else: # si pas d'id
-        return queryset
-'''
+from .permissions import UserIsAuthentif, UserAuthCreatProject, UserAuthCreatIssue,  UserAuthCreatComment, \
+    Permission_ProjectView, Permission2_ProjectView
 
 
+#class ProjectsViewset(ModelViewSet): # class ProjectsView(APIView):
+class ProjectsView(APIView):
 
-
-
-class ProjectsViewset(ModelViewSet): # class ProjectsView(APIView):
-    # auth_user_id = User.pk  # mettre l'utilisateur connecté du projet
-
-    #permission_classes = [UserIsContribProject]
-    #serializer_class = ProjectSerializer
-
-
-    #permission_classes = [UserIsContribProjet]
     '''
     def get_permissions(self):
-        """Return the list of permissions that this view requires."""
-        if self.action == "post":
-            permission_classes = [UserAuthentif]
-            return [permission() for permission in permission_classes]
-        elif self.action == "get_queryset":
-            permission_classes = [UserIsContribProject]
+
+        if (self.action == "post"):
+            permission_classes = [UserIsAuthentif]
+            print("permissionPostpermission", permission_classes)
             return [permission() for permission in permission_classes]
 
-    serializer_class = ProjectSerializer
+
+        if self.action =="get":
+            permission_classes = [UserIsContribProject]
+            print("permissionGetpermission L32", permission_classes)
+            return [permission() for permission in permission_classes]
+
+        # if self.post():
+
+        #if (self.action == "post"):
     '''
 
-    def get_permissions(self):
-        pass
 
-        if self.get_queryset():
-            permission_classes = [UserIsContribProject]
-            return [permission() for permission in permission_classes]
-        if self.action =="post":
-            permission_classes = [UserIsContribProject]
-            return [permission() for permission in permission_classes]
+    #permission_classes = UserIsContribProject
 
-        '''
+
+
+    #permission_classes = [UserIsAuthentif]
+    '''
         if self.post(self,request):
             permission_classes = [UserAuthentif]
             return [permission() for permission in permission_classes]
@@ -94,16 +56,24 @@ class ProjectsViewset(ModelViewSet): # class ProjectsView(APIView):
         elif self.action in ('post'):
             self.permission_classes = [UserAuthentif]
             return [permission() for permission in permission_classes]
-        '''
+    '''
+    Permission2_ProjectView()
+    Permission2_ProjectView()
 
 
 
+    def get_permissions(self):
+        permission_classes = [Permission2_ProjectView]
+        return [permission() for permission in permission_classes]
 
+    #from .permissions import Permission2_ProjectView
+
+    permission_classes = [Permission2_ProjectView]
     serializer_class = ProjectSerializer
 
 
+    def get(self, request, *args, **kwargs): # http://127.0.0.1:8000/projects/
 
-    def get_queryset(self):
 
         #def get(self, *args, **kwargs):
         pk_project = self.kwargs.get('pk')
@@ -122,19 +92,40 @@ class ProjectsViewset(ModelViewSet): # class ProjectsView(APIView):
             #return queryset    # return Response(serializer.data)
         # sinon, on renvoie tout les objets
         #else: # si pas d'id
-        return queryset
+        print()
+        print("********************* debut methode GET *********************")
+
+        pk = self.kwargs.get('pk')
+        try:
+            projet = Projects.objects.get(pk=pk)
+            contributors = Contributor.objects.filter(project_id=pk)
+            serializer = ContributorSerializer(contributors, many=True)
+            print ("try : numero de projet get trouvé, affiche le projet")
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except:
+            projet = "pas de projet"
+            projects = Projects.objects.filter(contributors=self.request.user)
+            serializer = ProjectSerializer(projects, many=True)
+            print("except : numero de projet get non trouvé affiche liste des projets")
+            # print (str(serializer.data))
+            #return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         pk = self.kwargs.get('pk')
         try :
             projet = Projects.objects.get(pk=pk)
+            print("1111111111111111")
         except:
             projet = "pas de projet"
+            print("22222222222")
 
         if projet == "pas de projet": # si pas de projet sélectionné, post possible, voir si utile
             serializer = ProjectSerializer(data=self.request.data)
-
+            print("333333333333")
             if serializer.is_valid():
+                print("44444444")
                 user_connect = request.user
                 # serializer.validated_data["title"] = "user_connect:" + str(user_connect) #author_user_id = l'id connecté
                 # serializer.validated_data["description"] = "user_connect:" + str(user_connect)
@@ -151,7 +142,9 @@ class ProjectsViewset(ModelViewSet): # class ProjectsView(APIView):
                                           permission="CRUD",
                                           role="auteur")
                 contributor.save()
+                print("555555555")
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else: # si un projet sélectionné, post possible, voir si utile
